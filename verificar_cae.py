@@ -73,6 +73,7 @@ def load_env():
 
     cert_path = os.environ.get("CERT_PATH", "")
     key_path = os.environ.get("KEY_PATH", "")
+    csv_separator = os.environ.get("CSV_SEPARATOR", ",")
 
     afip_options = {"CUIT": cuit, "access_token": access_token, "production": production}
 
@@ -87,12 +88,12 @@ def load_env():
         afip_options["cert"] = open(cert_path, "r", encoding="utf-8").read()
         afip_options["key"] = open(key_path, "r", encoding="utf-8").read()
 
-    return Afip(afip_options), production, cuit, pto_vta
+    return Afip(afip_options), production, cuit, pto_vta, csv_separator
 
 
-def read_resultados_csv(path: str):
+def read_resultados_csv(path: str, separator: str = ","):
     with open(path, newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
+        reader = csv.DictReader(f, delimiter=separator)
         rows = list(reader)
 
     required = {"doc_nro", "imp_total", "cbte_nro", "cae", "cae_vto", "resultado"}
@@ -193,7 +194,7 @@ def analyze_row(afip: Afip, row: dict, pto_vta: int, cbte_tipo: int):
     }
 
 
-def write_output_csv(rows_out: list[dict], path_out: str):
+def write_output_csv(rows_out: list[dict], path_out: str, separator: str = ","):
     fieldnames = [
         # input context
         "doc_nro",
@@ -216,7 +217,7 @@ def write_output_csv(rows_out: list[dict], path_out: str):
         "cae_not_expired",
     ]
     with open(path_out, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter=separator)
         writer.writeheader()
         for r in rows_out:
             writer.writerow({k: r.get(k, "") for k in fieldnames})
@@ -235,11 +236,11 @@ def main():
     # Ajustá si querés verificar otro tipo de comprobante
     CBTE_TIPO = 11  # Factura C
 
-    afip, production, cuit, pto_vta = load_env()
+    afip, production, cuit, pto_vta, csv_separator = load_env()
     print(f"Entorno: {'PRODUCCION' if production else 'HOMOLOGACION'} | CUIT: {cuit} | PtoVta: {pto_vta} | CbteTipo: {CBTE_TIPO}")
 
     try:
-        rows = read_resultados_csv(input_csv)
+        rows = read_resultados_csv(input_csv, csv_separator)
     except Exception as e:
         print(f"ERROR leyendo CSV: {e}")
         sys.exit(1)
@@ -278,7 +279,7 @@ def main():
 
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     out_csv = f"verificacion_{ts}.csv"
-    write_output_csv(out, out_csv)
+    write_output_csv(out, out_csv, csv_separator)
 
     print("\nResumen:")
     print(f"  OK:   {ok_count}")
