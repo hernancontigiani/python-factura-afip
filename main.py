@@ -185,8 +185,8 @@ def main():
         if not KEY_PATH or not os.path.exists(KEY_PATH):
             print("ERROR: KEY_PATH requerido en modo produccion")
             sys.exit(1)
-        afip_options["cert"] = open(CERT_PATH).read()
-        afip_options["key"] = open(KEY_PATH).read()
+        afip_options["cert"] = open(CERT_PATH, encoding="utf-8").read()
+        afip_options["key"] = open(KEY_PATH, encoding="utf-8").read()
     afip = Afip(afip_options)
 
     fecha_cbte = obtener_fecha_minima(afip)
