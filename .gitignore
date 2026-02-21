@@ -8,4 +8,4 @@ venv
 # Certificates
 *csr
 *key
-.crt
+*.crt
