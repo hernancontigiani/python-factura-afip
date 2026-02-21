@@ -1,0 +1,11 @@
+venv
+.env
+.env.dev
+
+# Files
+*.csv
+
+# Certificates
+*csr
+*key
+.crt
