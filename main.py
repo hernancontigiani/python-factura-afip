@@ -25,6 +25,7 @@ IMP_OP_EX = 0        # Importe operaciones exentas
 IMP_IVA = 0          # Factura C no discrimina IVA
 IMP_TRIB = 0         # Importe tributos
 CONDICION_IVA_RECEPTOR = 5  # Consumidor Final (RG 5616)
+DOC_TIPO_CONSUMIDOR_FINAL = 99  # Sin documento / Consumidor Final
 
 load_dotenv()
 
@@ -53,9 +54,10 @@ def leer_csv(path):
                 sys.exit(1)
 
             fecha = row.get("fecha", "").strip() or hoy
+            es_final = doc_nro.lower() == "final"
 
             facturas.append({
-                "doc_nro": int(doc_nro),
+                "doc_nro": None if es_final else int(doc_nro),
                 "imp_total": float(imp_total),
                 "fecha": fecha,
             })
@@ -77,7 +79,8 @@ def mostrar_resumen(facturas):
 
     total = 0
     for i, f in enumerate(facturas, start=1):
-        print(f"  {i:<4} {f['doc_nro']:<12} {f['imp_total']:>12.2f} {f['fecha']:<10}")
+        doc_display = "CONS.FINAL" if f["doc_nro"] is None else str(f["doc_nro"])
+        print(f"  {i:<4} {doc_display:<12} {f['imp_total']:>12.2f} {f['fecha']:<10}")
         total += f["imp_total"]
 
     print(f"  {'-'*42}")
@@ -113,13 +116,20 @@ def emitir_factura(afip, factura, fecha_cbte):
     Usa createNextVoucher que obtiene el proximo numero de comprobante
     automaticamente, evitando conflictos de numeracion.
     """
+    if factura["doc_nro"] is None:
+        doc_tipo = DOC_TIPO_CONSUMIDOR_FINAL
+        doc_nro = 0
+    else:
+        doc_tipo = DOC_TIPO
+        doc_nro = factura["doc_nro"]
+
     data = {
         "CantReg": 1,
         "PtoVta": PUNTO_VENTA,
         "CbteTipo": CBTE_TIPO,
         "Concepto": CONCEPTO,
-        "DocTipo": DOC_TIPO,
-        "DocNro": factura["doc_nro"],
+        "DocTipo": doc_tipo,
+        "DocNro": doc_nro,
         "CbteFch": fecha_cbte,
         "ImpTotal": factura["imp_total"],
         "ImpTotConc": IMP_TOT_CONC,
@@ -185,11 +195,12 @@ def main():
     resultados = []
 
     for i, factura in enumerate(facturas, start=1):
-        print(f"  [{i}/{len(facturas)}] DNI {factura['doc_nro']} - ${factura['imp_total']:.2f}...", end=" ")
+        doc_label = "CONSUMIDOR FINAL" if factura["doc_nro"] is None else f"DNI {factura['doc_nro']}"
+        print(f"  [{i}/{len(facturas)}] {doc_label} - ${factura['imp_total']:.2f}...", end=" ")
         try:
             res = emitir_factura(afip, factura, fecha_cbte)
             resultados.append({
-                "doc_nro": factura["doc_nro"],
+                "doc_nro": factura["doc_nro"] if factura["doc_nro"] is not None else "CONSUMIDOR FINAL",
                 "imp_total": factura["imp_total"],
                 "fecha": factura["fecha"],
                 "cbte_nro": res["voucherNumber"],
@@ -200,7 +211,7 @@ def main():
             print(f"OK (Nro: {res['voucherNumber']}, CAE: {res['CAE']})")
         except Exception as e:
             resultados.append({
-                "doc_nro": factura["doc_nro"],
+                "doc_nro": factura["doc_nro"] if factura["doc_nro"] is not None else "CONSUMIDOR FINAL",
                 "imp_total": factura["imp_total"],
                 "fecha": factura["fecha"],
                 "cbte_nro": "",

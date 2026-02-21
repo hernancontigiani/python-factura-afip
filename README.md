@@ -1,4 +1,12 @@
 
+## Setup
+Instalar las librerias necesarias
+
+En caso de estar usando un virtual env activarlo con:
+```
+source venv/bin/activate
+```
+
 
 ## Generar archivo .env (ejemplo)
 ```
@@ -19,7 +27,8 @@ KEY_PATH=./key.key
 
 ## Configuración inicial
 ### Cuenta en Afip SDK
-- Se debe crear una cuetna en AFIP SDK para obtener un access token
+Se debe crear una cuetna en AFIP SDK para obtener un access token:
+- https://app.afipsdk.com/
 
 
 ### Certificados
