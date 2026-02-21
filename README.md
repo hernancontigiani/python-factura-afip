@@ -32,7 +32,7 @@ Se debe crear una cuetna en AFIP SDK para obtener un access token:
 
 
 ### Certificados
-1- Generar un certificado usando generar_cert.py usando el CUIT y el nombre completo
+1- Generar el certificado CSR y la KEY usando generar_cert.py usando el CUIT y el nombre completo
 2- Se debe ingresar a la pagina de AFIP y buscar el servicio "Administración de Certificados Digitales"
 3- Cargar el certificado csr generado usando un alias cualquiera (ejemplo: facturador)
 4- DEscargar el certificado .crt generado y colocarlo en esta carpeta, copiando el nombre del archivo en el archivo .env
@@ -50,6 +50,12 @@ Referencia:
 
 
 ### Habilitar nuevo punto de venta
-"Sistema registral"
-Crear nuevo punto de venta que soporta WebService y colocarlo en el .env
-https://www.youtube.com/watch?v=Uumuf3X_6rk
+1- Se debe ingresar a la pagina de AFIP y buscar el servicio"Sistema registral"
+2- Una vez allí en la pantalla de "Inicio" scrollear asia abajo hasta encontrar "Registro Úncio Tributario" y presionar "ingresar"
+3- Esto abrirá una nueva pantalla en donde deberá scrollear asia abajo hasta la sección "Puntos de venta" y presionar modificar datos
+4- Una vez allí presionar "agregar nuevo punto de venta" y elegir:
+    - Modo de facturación: Factura Elétronica .... Web Services
+5- Especificar el número del nuevo punto de venta que soporta WebService en el .env
+
+Referencia:
+- https://www.youtube.com/watch?v=Uumuf3X_6rk
