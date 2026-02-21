@@ -36,6 +36,7 @@ ACCESS_TOKEN = os.environ["ACCESS_TOKEN"]
 PUNTO_VENTA = int(os.environ["PUNTO_VENTA"])
 CERT_PATH = os.environ.get("CERT_PATH", "")
 KEY_PATH = os.environ.get("KEY_PATH", "")
+CSV_SEPARATOR = os.environ.get("CSV_SEPARATOR", ",")
 
 
 def leer_csv(path):
@@ -44,7 +45,7 @@ def leer_csv(path):
     facturas = []
 
     with open(path, newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
+        reader = csv.DictReader(f, delimiter=CSV_SEPARATOR)
         for i, row in enumerate(reader, start=2):
             doc_nro = row.get("doc_nro", "").strip()
             imp_total = row.get("imp_total", "").strip()
@@ -153,7 +154,7 @@ def guardar_resultados(resultados, path_salida):
     campos = ["doc_nro", "imp_total", "fecha", "cbte_nro", "cae", "cae_vto", "resultado"]
 
     with open(path_salida, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=campos)
+        writer = csv.DictWriter(f, fieldnames=campos, delimiter=CSV_SEPARATOR)
         writer.writeheader()
         writer.writerows(resultados)
 

@@ -19,6 +19,11 @@ CUIT=20409378472
 ACCESS_TOKEN=xxxxxxx
 PUNTO_VENTA=1
 
+# --- CSV ---
+# Separador de columnas del CSV de entrada y salida.
+# Usar ";" en Windows si Excel genera punto y coma por defecto.
+# CSV_SEPARATOR=,
+
 # --- Solo produccion (ignorados en testing) ---
 # Rutas a los archivos de certificado y clave privada
 CERT_PATH=./certificado.crt
